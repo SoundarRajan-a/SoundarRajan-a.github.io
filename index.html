@@ -3,147 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Soundarrajan SR - Web developer and BSC Computer Science student from Villupuram.">
+    <meta name="description" content="Soundarrajan SR -Web Developer Portfolio with Dynamic Blog. Modern, responsive design with GitHub Issues blog integration.">
+    <meta name="keywords" content="Soundarrajan sr, web developer, full stack, portfolio, blog, computer science,esasc,es arts and science college, JavaScript">
+    <meta name="author" content="Soundarrajan SR">
     <meta property="og:title" content="Soundarrajan SR | Web Developer">
     <meta property="og:description" content="Portfolio of Soundarrajan SR, Web developer and Computer Science student">
     <meta property="og:url" content="https://soundarrajan.me">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://soundarrajan.me/your-photo.jpg">
+    <meta property="og:image" content="https://soundarrajan.me/src/your-photo.jpg">
     <title>Soundarrajan SR</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" href="https://raw.githubusercontent.com/SoundarRajan-a/SoundarRajan-a.github.io/c8b328d8c58e13ce99ff8683f1f7b1251d9576fd/src/your-photo.jpg" type="image/jpg">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Animation Container -->
-    <div class="animation-container">
-        <div class="lightning-container">
-            <div class="lightning white"></div>
-            <div class="lightning red"></div>
+    <!-- Background Container -->
+    <div class="bg-container">
+        <div class="floating-orbs">
+            <div class="orb"></div>
+            <div class="orb"></div>
+            <div class="orb"></div>
         </div>
-        <div class="boom-container">
-            <div class="shape circle big white"></div>
-            <div class="shape circle white"></div>
-            <div class="shape triangle big yellow"></div>
-            <div class="shape disc white"></div>
-            <div class="shape triangle blue"></div>
-        </div>
-        <div class="boom-container second">
-            <div class="shape circle big white"></div>
-            <div class="shape circle white"></div>
-            <div class="shape disc white"></div>
-            <div class="shape triangle blue"></div>
-        </div>
+        <div class="grid-bg"></div>
     </div>
 
-    <div class="container">
-        <!-- Profile Section -->
-        <section class="profile-section">
-            <img src="https://raw.githubusercontent.com/SoundarRajan-a/SoundarRajan-a.github.io/c8b328d8c58e13ce99ff8683f1f7b1251d9576fd/src/your-photo.jpg" alt="Soundarrajan" class="profile-photo">
-            <h1 class="name">SOUNDARRAJAN</h1>
-            <p class="title">Website Developer</p>
-        </section>
-        
-        <!-- About Section -->
-        <section class="about-section">
-            <h2 class="section-title"><i class="fas fa-user"></i> About Me</h2>
-            <p class="about-text">
-                Hello! I'm Soundarrajan, a passionate computer science student with a strong interest in web development. 
-                I enjoy creating interactive and visually appealing websites using modern technologies.
-            </p>
-            <p class="education">
-                <i class="fas fa-graduation-cap"></i> Currently studying at ES Arts and Science College in Villupuram
-            </p>
-            <p class="education">
-                <i class="fas fa-book"></i> 3rd Year BSC Computer Science Student
-            </p>
-            <p class="about-text">
-                I'm currently deepening my knowledge in the MERN stack (MongoDB, Express.js, React, Node.js) to build 
-                full-stack applications. My goal is to become a proficient web developer.
-            </p>
-        </section>
-                <!-- Blog Section -->
-        <section class="about-section">
-            <h2 class="section-title"><i class="fas fa-blog"></i> My Blog</h2>
-            <div id="blog-posts" class="blog-grid">
-                <div class="blog-loader">
-                    <i class="fas fa-spinner fa-spin"></i> Loading posts...
-                </div>
-            </div>
-        </section>
-        
-        
-        <!-- Skills Section -->
-        <section class="about-section">
-            <h2 class="section-title"><i class="fas fa-code"></i> My Skills</h2>
-            <div class="skills-container">
-                <div class="skill-item">
-                    <div class="skill-name">HTML</div>
-                    <div class="skill-level">
-                        <div class="skill-progress" style="width: 50%"></div>
-                    </div>
-                    <div class="skill-percent">50%</div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-name">CSS</div>
-                    <div class="skill-level">
-                        <div class="skill-progress" style="width: 50%"></div>
-                    </div>
-                    <div class="skill-percent">50%</div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-name">JavaScript</div>
-                    <div class="skill-level">
-                        <div class="skill-progress" style="width: 70%"></div>
-                    </div>
-                    <div class="skill-percent">70%</div>
-                </div>
-                <div class="skill-item">
-                    <div class="skill-name">MERN Stack</div>
-                    <div class="skill-level">
-                        <div class="skill-progress" style="width: 30%"></div>
-                    </div>
-                    <div class="skill-percent">Learning</div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- Contact Section -->
-        <section class="contact-section">
-            <h2 class="section-title"><i class="fas fa-envelope"></i> Get In Touch</h2>
-            <p>Connect with me on these platforms:</p>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo" onclick="scrollToTop()">SR</div>
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link active">Home</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#blog" class="nav-link">Blog</a></li>
+                <li><a href="#education" class="nav-link">Education</a></li>
+                <li><a href="#skills" class="nav-link">Skills</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <button class="mobile-menu" id="mobileMenuBtn" aria-label="Toggle mobile menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay">
+        <ul class="mobile-nav-links">
+            <li><a href="#home" class="nav-link">Home</a></li>
+            <li><a href="#about" class="nav-link">About</a></li>
+            <li><a href="#projects" class="nav-link">Projects</a></li>
+            <li><a href="#blog" class="nav-link">Blog</a></li>
+            <li><a href="#education" class="nav-link">Education</a></li>
+            <li><a href="#skills" class="nav-link">Skills</a></li>
+            <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <img src="src/aakash.jpg" 
+                 alt="Soundarrajan SR - Full Stack Developer" class="hero-avatar">
             
-            <div class="social-links">
-                <a href="https://www.instagram.com/aakash_sr_25/" class="social-link" target="_blank">
-                    <i class="fab fa-instagram"></i> Instagram
+            <h1 class="hero-title">SOUNDARRAJAN</h1>
+            <p class="hero-subtitle">Web Developer</p>
+            <p class="hero-description">
+                Crafting innovative digital experiences with modern technologies. 
+                Passionate about creating beautiful, functional, and user-centric web applications.
+            </p>
+            
+            <div class="hero-buttons">
+                <a href="#projects" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Explore My Work
                 </a>
-                <a href="https://www.linkedin.com/in/soundar-rajan-b589822b5" class="social-link" target="_blank">
-                    <i class="fab fa-linkedin-in"></i> LinkedIn
-                </a>
-                <a href="https://github.com/SoundarRajan-a" class="social-link" target="_blank">
-                    <i class="fab fa-github"></i> GitHub
+                <a href="#contact" class="btn btn-secondary">
+                    <i class="fas fa-paper-plane"></i>
+                    Let's Connect
                 </a>
             </div>
-        </section>
-    </div>
-
-    <!-- Blog Modal -->
-    <div id="blog-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 id="modal-title"></h2>
-            <div class="modal-meta">
-                <span id="modal-date"><i class="far fa-calendar-alt"></i> Loading date...</span>
-                <span id="modal-comments"><i class="far fa-comment"></i> 0 comments</span>
-            </div>
-            <div id="modal-body" class="modal-body"></div>
         </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">About Me</div>
+                <h2 class="section-title">Creative Developer</h2>
+                <p class="section-description">
+                  Hi, I’m Soundarrajan, a 5th semester B.Sc. Computer Science student at ES Arts and Science College, Villupuram. I have a strong interest in UI/UX design and love creating clean, modern, and user-friendly digital experiences. Alongside my studies, I’m constantly exploring new tools and technologies to improve my skills in web development and interface design. I’m passionate about blending creativity with code, and I enjoy turning ideas into interactive and visually engaging projects.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section with See More -->
+    <section id="projects" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">Projects</div>
+                <h2 class="section-title">Featured Projects</h2>
+                <p class="section-description">
+                    Here are some of my recent projects showcasing my skills in modern web development
+                </p>
+            </div>
+
+            <div class="projects-grid" id="projectsGrid">
+                <!-- Project 1 -->
+                <div class="card fade-in project-item">
+                    <div class="project-header">
+                        <div class="project-icon">
+                            <i class="fas fa-language"></i>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://grammar.soundarrajan.me" class="project-link" title="View Live" aria-label="View live project">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                            <a href="https://github.com/SoundarRajan-a/Grammar-Checker" class="project-link" title="View Code" aria-label="View source code">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Grammar-Checker</h3>
+                    <p class="project-description">
+                        A web application that helps users improve their writing by checking grammar, punctuation, and style.
+                    </p>
+                    <div class="project-tech">
+                        <span class="tech-tag">HTML</span>
+                        <span class="tech-tag">JAVASCRIPT</span>
+                        <span class="tech-tag">CSS</span>
+                        <span class="tech-tag">LANGUAGE TOOL</span>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="card fade-in project-item">
+                    <div class="project-header">
+                        <div class="project-icon">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <div class="project-links">
+                            <a href="https://game.soundarrajan.me" class="project-link" title="View Live" aria-label="View live project">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                            <a href="https://github.com/SoundarRajan-a/magic-ball" class="project-link" title="View Code" aria-label="View source code">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="project-title"> Magic 8-Ball</h3>
+                    <p class="project-description">
+                        A fun web application that simulates the classic Magic 8-Ball toy, providing random answers to user questions.
+                    </p>
+                    <div class="project-tech">
+                        <span class="tech-tag">HTML</span>
+                        <span class="tech-tag">JAVASCRIPT</span>
+                        <span class="tech-tag">CSS</span>
+                    </div>
+                </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/5.1.1/marked.min.js"></script>
+            <!-- See More Button for Projects -->
+            <div class="see-more-container" id="seeMoreContainer">
+                <button class="see-more-btn" id="seeMoreBtn">
+                    <i class="fas fa-plus"></i>
+                    See More Projects
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section with Load More -->
+    <section id="blog" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">Blog</div>
+                <h2 class="section-title">Latest Articles</h2>
+                <p class="section-description">
+                    Thoughts, tutorials, and insights from my development journey
+                </p>
+            </div>
+
+            <div id="blogContainer">
+                <div class="blog-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading blog posts...
+                </div>
+            </div>
+
+            <!-- Load More Button for Blog -->
+            <div class="load-more-container" id="loadMoreContainer" style="display: none;">
+                <button class="load-more-btn" id="loadMoreBtn">
+                    <i class="fas fa-spinner loading-spinner"></i>
+                    <span class="btn-text">
+                        <i class="fas fa-plus"></i>
+                        Load More Posts
+                    </span>
+                </button>
+            </div>
+
+            <div class="author-credit">
+                <p>Blog posts by <span class="author-name">Soundarrajan</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section id="education" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">Education</div>
+                <h2 class="section-title">Academic Journey</h2>
+                <p class="section-description">
+                    Building a strong foundation in computer science and software development
+                </p>
+            </div>
+
+            <div class="timeline">
+                  <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Bachelor of Science in Computer Science</h3>
+                        <p class="timeline-institution">ES Arts and Science College, Villupuram</p>
+                        <p class="timeline-date">2023-PRESENT</p>
+                    </div>
+                </div>
+                                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Higher Secondary Education</h3>
+                        <p class="timeline-institution">GANDHI MEMORIAL HR SEC SCHOOL, THIRUVENNAINALLUR</p>
+                        <p class="timeline-date">Completed in 2023</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-badge">Expertise</div>
+                <h2 class="section-title">Skills & Technologies</h2>
+                <p class="section-description">
+                    I work with modern technologies to build scalable and efficient applications
+                </p>
+            </div>
+
+            <div class="skills-container fade-in">
+                <div class="skills-grid">
+                    <!-- Frontend Skills -->
+                    <div class="skill-item">HTML</div>
+                    <div class="skill-item">CSS</div>
+                    <div class="skill-item">JavaScript</div>
+                    <!-- Tools & Others -->
+                    <div class="skill-item">GitHub</div>
+                    <div class="skill-item">UI/UX Design</div>
+                    <div class="skill-item">Problem Solving</div>
+                    <div class="skill-item">Team Collaboration</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section" style="padding: 1rem;">
+    </section>
+
+    <!-- Footer with Contact -->
+    <footer class="footer">
+        <div class="container">
+            <h2 class="footer-title">Let's Connect</h2>
+            <div class="social-links">
+                <a href="mailto:soundarrajan@example.com" class="social-link" title="Email" aria-label="Send email">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/soundar-rajan-b589822b5" class="social-link" target="_blank" title="LinkedIn" aria-label="LinkedIn profile">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="https://github.com/SoundarRajan-a" class="social-link" target="_blank" title="GitHub" aria-label="GitHub profile">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="https://www.instagram.com/aakash_sr_25/" class="social-link" target="_blank" title="Instagram" aria-label="Instagram profile">
+                    <i class="fab fa-instagram"></i>
+                </a>
+            </div>
+            <p class="footer-text">
+                © 2025 SOUNDARRAJAN SR. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scroll to top button -->
+    <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <script src="script.js"></script>
 </body>
 </html>
