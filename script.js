@@ -7,6 +7,15 @@ const BLOG_CONFIG = {
     cacheTimeout: 300000 // 5 minutes
 };
 
+const SEO_CONFIG = {
+    siteName: 'Soundarrajan A Portfolio',
+    baseUrl: 'https://soundarrajan.me',
+    author: 'Soundarrajan A',
+    defaultTitle: 'Soundarrajan A | Web Developer Portfolio',
+    defaultDescription: 'Portfolio of Soundarrajan A, Web developer and Computer Science student specializing in modern web technologies',
+    keywords: ['Soundarrajan A', 'web developer', 'portfolio', 'JavaScript', 'HTML', 'CSS']
+};
+
 // ============= STATE MANAGEMENT =============
 let blogState = {
     currentPage: 1,
@@ -85,6 +94,192 @@ const sanitizeHTML = (str) => {
     return temp.innerHTML;
 };
 
+// ============= SEO MANAGER =============
+class SEOManager {
+    constructor() {
+        this.currentPage = 'home';
+        this.initialize();
+    }
+
+    initialize() {
+        this.setupMetaTagManagement();
+        this.setupStructuredData();
+        this.optimizeImages();
+    }
+
+    setupMetaTagManagement() {
+        const sectionTitles = {
+            home: {
+                title: 'Soundarrajan A | Web Developer Portfolio',
+                description: 'Portfolio showcasing modern web development projects, skills, and experience of Soundarrajan A, Computer Science student.',
+                keywords: 'Soundarrajan A, web developer, portfolio, projects'
+            },
+            about: {
+                title: 'About Soundarrajan A | Web Developer & CS Student',
+                description: 'Learn about Soundarrajan A, a passionate web developer and Computer Science student at ES Arts and Science College, Villupuram.',
+                keywords: 'about soundarrajan, computer science student, web developer profile'
+            },
+            projects: {
+                title: 'Projects by Soundarrajan A | Web Development Portfolio',
+                description: 'Explore innovative web development projects including Grammar Checker and Magic 8-Ball applications built with modern technologies.',
+                keywords: 'web development projects, grammar checker, magic 8-ball, JavaScript projects'
+            },
+            blog: {
+                title: 'Blog | Soundarrajan A - Web Developer Insights',
+                description: 'Read latest articles, tutorials, and insights about web development, programming, and technology by Soundarrajan A.',
+                keywords: 'web development blog, programming tutorials, technology insights'
+            },
+            education: {
+                title: 'Education | Soundarrajan A - Academic Journey',
+                description: 'Academic background of Soundarrajan A including Computer Science studies at ES Arts and Science College.',
+                keywords: 'computer science education, ES arts science college, academic background'
+            },
+            skills: {
+                title: 'Skills & Technologies | Soundarrajan A Web Developer',
+                description: 'Technical skills and expertise in HTML, CSS, JavaScript, UI/UX Design, and modern web development technologies.',
+                keywords: 'web development skills, HTML, CSS, JavaScript, UI/UX design'
+            },
+            contact: {
+                title: 'Contact Soundarrajan A | Web Developer',
+                description: 'Get in touch with Soundarrajan A for web development projects, collaborations, or opportunities.',
+                keywords: 'contact web developer, hire developer, collaboration'
+            }
+        };
+
+        this.metaTags = sectionTitles;
+    }
+
+    updateMetaTags(section = 'home') {
+        if (!this.metaTags[section]) return;
+        
+        const meta = this.metaTags[section];
+        
+        // Update title
+        document.title = meta.title;
+        this.updateMetaTag('title', meta.title);
+        
+        // Update description
+        this.updateMetaTag('description', meta.description);
+        
+        // Update keywords
+        this.updateMetaTag('keywords', meta.keywords);
+        
+        // Update Open Graph tags
+        this.updateMetaTag('og:title', meta.title, 'property');
+        this.updateMetaTag('og:description', meta.description, 'property');
+        this.updateMetaTag('og:url', `${SEO_CONFIG.baseUrl}#${section}`, 'property');
+        
+        // Update Twitter tags
+        this.updateMetaTag('twitter:title', meta.title);
+        this.updateMetaTag('twitter:description', meta.description);
+        
+        this.currentPage = section;
+    }
+
+    updateMetaTag(name, content, attribute = 'name') {
+        let meta = document.querySelector(`meta[${attribute}="${name}"]`);
+        
+        if (!meta) {
+            meta = document.createElement('meta');
+            meta.setAttribute(attribute, name);
+            document.head.appendChild(meta);
+        }
+        
+        meta.setAttribute('content', content);
+    }
+
+    setupStructuredData() {
+        this.addProjectsStructuredData();
+        this.addBlogStructuredData();
+    }
+
+    addProjectsStructuredData() {
+        const projects = [
+            {
+                "@type": "SoftwareApplication",
+                "name": "Grammar Checker",
+                "description": "A web application that helps users improve their writing by checking grammar, punctuation, and style.",
+                "url": "https://grammar.soundarrajan.me",
+                "author": {
+                    "@type": "Person",
+                    "name": "Soundarrajan A"
+                },
+                "programmingLanguage": ["HTML", "JavaScript", "CSS"],
+                "applicationCategory": "WebApplication"
+            },
+            {
+                "@type": "SoftwareApplication", 
+                "name": "Magic 8-Ball",
+                "description": "A fun web application that simulates the classic Magic 8-Ball toy, providing random answers to user questions.",
+                "url": "https://game.soundarrajan.me",
+                "author": {
+                    "@type": "Person",
+                    "name": "Soundarrajan A"
+                },
+                "programmingLanguage": ["HTML", "JavaScript", "CSS"],
+                "applicationCategory": "GameApplication"
+            }
+        ];
+
+        this.addStructuredDataToPage('projects-schema', {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "Web Development Projects by Soundarrajan A",
+            "description": "Collection of web development projects showcasing modern technologies and programming skills",
+            "itemListElement": projects.map((project, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "item": project
+            }))
+        });
+    }
+
+    addBlogStructuredData() {
+        this.addStructuredDataToPage('blog-schema', {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "name": "Soundarrajan A Development Blog",
+            "description": "Insights, tutorials, and thoughts on web development and programming",
+            "url": `${SEO_CONFIG.baseUrl}#blog`,
+            "author": {
+                "@type": "Person",
+                "name": "Soundarrajan A"
+            }
+        });
+    }
+
+    addStructuredDataToPage(id, data) {
+        const existing = document.getElementById(id);
+        if (existing) {
+            existing.remove();
+        }
+
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.id = id;
+        script.textContent = JSON.stringify(data, null, 2);
+        document.head.appendChild(script);
+    }
+
+    optimizeImages() {
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            if (!img.hasAttribute('loading')) {
+                img.setAttribute('loading', 'lazy');
+            }
+            
+            if (!img.getAttribute('alt')) {
+                const src = img.getAttribute('src');
+                if (src.includes('aakash')) {
+                    img.setAttribute('alt', 'Soundarrajan A - Web Developer Profile Photo');
+                } else {
+                    img.setAttribute('alt', 'Portfolio image');
+                }
+            }
+        });
+    }
+}
+
 // ============= ENHANCED NAVBAR FUNCTIONALITY =============
 const handleScroll = throttle(() => {
     if (isScrolling) return;
@@ -102,13 +297,10 @@ const handleScroll = throttle(() => {
         
         // Show navbar when scrolling up or at top, hide when scrolling down
         if (scrollY <= 100) {
-            // Always show at top
             elements.navbar?.classList.remove('hidden');
         } else if (currentScrollDirection === 'up' && scrollDirection === 'down') {
-            // Show when starting to scroll up
             elements.navbar?.classList.remove('hidden');
         } else if (currentScrollDirection === 'down' && scrollY > lastScrollY + 10) {
-            // Hide when scrolling down significantly
             elements.navbar?.classList.add('hidden');
         }
         
@@ -134,52 +326,26 @@ const updateActiveNavLinks = () => {
         const offsetTop = scrollPosition + rect.top - 100;
         const offsetBottom = offsetTop + section.offsetHeight;
         
-        // Check if section is in viewport
         if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
             current = section.getAttribute('id');
         }
         
-        // Alternative: check if section center is in viewport
         if (!current && rect.top <= viewportHeight / 2 && rect.bottom >= viewportHeight / 2) {
             current = section.getAttribute('id');
         }
     });
     
-    if (current) {
+    if (current && current !== seoManager.currentPage) {
+        seoManager.updateMetaTags(current);
+        
         const targetHref = `#${current}`;
-        
-        // Update desktop nav links with enhanced active state
         elements.navLinks.forEach(link => {
-            const isActive = link.getAttribute('href') === targetHref;
-            link.classList.toggle('active', isActive);
-            
-            // Enhanced visual feedback
-            if (isActive) {
-                link.style.setProperty('--glow-intensity', '1');
-            } else {
-                link.style.setProperty('--glow-intensity', '0');
-            }
-        });
-        
-        // Update mobile nav links
-        elements.mobileNavLinks.forEach(link => {
             link.classList.toggle('active', link.getAttribute('href') === targetHref);
         });
         
-        // Update page title based on current section
-        const sectionTitles = {
-            home: 'Soundarrajan A | Web Developer',
-            about: 'About - Soundarrajan A',
-            projects: 'Projects - Soundarrajan A',
-            blog: 'Blog - Soundarrajan A',
-            education: 'Education - Soundarrajan A',
-            skills: 'Skills - Soundarrajan A',
-            contact: 'Contact - Soundarrajan A'
-        };
-        
-        if (sectionTitles[current]) {
-            document.title = sectionTitles[current];
-        }
+        elements.mobileNavLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === targetHref);
+        });
     }
 };
 
@@ -188,8 +354,6 @@ const smoothScrollTo = (targetId) => {
     if (!target) return;
     
     isScrolling = true;
-    
-    // Show navbar when navigating
     elements.navbar?.classList.remove('hidden');
     
     const offsetTop = target.offsetTop - 80;
@@ -231,8 +395,6 @@ const toggleMobileMenu = () => {
 
 const scrollToTop = () => {
     isScrolling = true;
-    
-    // Show navbar when going to top
     elements.navbar?.classList.remove('hidden');
     
     window.scrollTo({
@@ -249,12 +411,10 @@ const scrollToTop = () => {
 const initializeProjects = () => {
     const allProjectItems = document.querySelectorAll('.project-item');
     
-    // Show only initial projects
     allProjectItems.forEach((item, index) => {
         item.classList.toggle('hidden', index >= projectsState.initialShow);
     });
     
-    // Show/hide "See More" button
     if (elements.seeMoreContainer) {
         elements.seeMoreContainer.style.display = 
             allProjectItems.length > projectsState.initialShow ? 'block' : 'none';
@@ -266,7 +426,6 @@ const toggleProjects = () => {
     const allProjects = document.querySelectorAll('.project-item');
     
     if (!projectsState.showingAll) {
-        // Show more projects
         hiddenProjects.forEach((project, index) => {
             setTimeout(() => {
                 project.classList.remove('hidden');
@@ -279,7 +438,6 @@ const toggleProjects = () => {
         }
         projectsState.showingAll = true;
     } else {
-        // Hide extra projects
         allProjects.forEach((project, index) => {
             if (index >= projectsState.initialShow) {
                 project.classList.add('hidden');
@@ -292,17 +450,15 @@ const toggleProjects = () => {
         }
         projectsState.showingAll = false;
         
-        // Scroll to projects section
         smoothScrollTo('#projects');
     }
 };
 
-// ============= BLOG FUNCTIONALITY (Without Reading Time) =============
+// ============= BLOG FUNCTIONALITY =============
 const fetchBlogPosts = async (page = 1) => {
     const cacheKey = `blog-page-${page}`;
     const now = Date.now();
     
-    // Check cache
     if (blogState.cache.has(cacheKey) && 
         (now - blogState.lastFetch) < BLOG_CONFIG.cacheTimeout) {
         return blogState.cache.get(cacheKey);
@@ -333,7 +489,6 @@ const fetchBlogPosts = async (page = 1) => {
         
         const issues = await response.json();
         
-        // Cache the result
         blogState.cache.set(cacheKey, issues);
         blogState.lastFetch = now;
         
@@ -374,7 +529,6 @@ const loadInitialBlogPosts = async () => {
         blogState.displayedPosts = issues;
         blogState.currentPage = 1;
         
-        // Check if there are more posts
         blogState.hasMorePosts = issues.length === BLOG_CONFIG.postsPerPage;
         
         if (elements.loadMoreContainer) {
@@ -413,7 +567,6 @@ const loadMoreBlogPosts = async () => {
             
             renderBlogPosts(newPosts, false);
             
-            // Check if there are more posts
             blogState.hasMorePosts = newPosts.length === BLOG_CONFIG.postsPerPage;
             
             if (!blogState.hasMorePosts && elements.loadMoreContainer) {
@@ -428,7 +581,6 @@ const loadMoreBlogPosts = async () => {
     } catch (error) {
         console.error('Error loading more blog posts:', error);
         
-        // Show error message
         const errorMsg = document.createElement('div');
         errorMsg.className = 'blog-error';
         errorMsg.innerHTML = `
@@ -466,7 +618,6 @@ const renderBlogPosts = (posts, isInitial = false) => {
         }
     }
     
-    // Trigger fade-in animations for new cards
     setTimeout(() => {
         const newCards = document.querySelectorAll('.blog-card:not(.visible)');
         newCards.forEach((card, index) => {
@@ -537,10 +688,8 @@ const updateLoadMoreButton = (isLoading) => {
 
 // ============= EVENT LISTENERS =============
 const initializeEventListeners = () => {
-    // Enhanced scroll events
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Navigation events
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -556,7 +705,6 @@ const initializeEventListeners = () => {
         });
     });
     
-    // Mobile menu events
     elements.mobileMenuBtn?.addEventListener('click', toggleMobileMenu);
     
     elements.mobileNavOverlay?.addEventListener('click', (e) => {
@@ -565,7 +713,6 @@ const initializeEventListeners = () => {
         }
     });
     
-    // Enhanced keyboard events
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (isMobileMenuOpen) {
@@ -573,7 +720,6 @@ const initializeEventListeners = () => {
             }
         }
         
-        // Navigation shortcuts
         if (e.ctrlKey || e.metaKey) {
             switch (e.key) {
                 case 'h':
@@ -592,37 +738,27 @@ const initializeEventListeners = () => {
         }
     });
     
-    // Projects events
     elements.seeMoreBtn?.addEventListener('click', toggleProjects);
-    
-    // Blog events
     elements.loadMoreBtn?.addEventListener('click', loadMoreBlogPosts);
-    
-    // Scroll to top event
     elements.scrollTopBtn?.addEventListener('click', scrollToTop);
     
-    // Enhanced resize handler
     window.addEventListener('resize', debounce(() => {
         if (window.innerWidth > 768 && isMobileMenuOpen) {
             closeMobileMenu();
         }
         
-        // Reset navbar state on resize
         if (elements.navbar) {
             elements.navbar.classList.remove('hidden');
         }
     }, 250));
     
-    // Page visibility change handler
     document.addEventListener('visibilitychange', () => {
         if (document.hidden && isMobileMenuOpen) {
             closeMobileMenu();
         }
     });
     
-    // Enhanced focus management
     document.addEventListener('focusin', (e) => {
-        // Show navbar when navigating with keyboard
         if (e.target.matches('.nav-link')) {
             elements.navbar?.classList.remove('hidden');
         }
@@ -641,14 +777,12 @@ const initializeIntersectionObserver = () => {
             if (entry.isIntersecting && !entry.target.classList.contains('visible')) {
                 entry.target.classList.add('visible');
                 
-                // Enhanced animation delays for better visual flow
                 const animationDelay = Array.from(entry.target.parentNode.children).indexOf(entry.target) * 100;
                 entry.target.style.transitionDelay = `${animationDelay}ms`;
             }
         });
     }, observerOptions);
     
-    // Observe fade-in elements
     document.querySelectorAll('.fade-in').forEach(el => {
         observer.observe(el);
     });
@@ -657,14 +791,16 @@ const initializeIntersectionObserver = () => {
 };
 
 // ============= INITIALIZATION =============
+let seoManager;
+
 const initializeWebsite = async () => {
     try {
         console.log('🚀 Initializing Soundarrajan Portfolio...');
         
-        // Initialize navbar state
+        seoManager = new SEOManager();
+        
         updateActiveNavLinks();
         
-        // Set initial states based on scroll position
         if (window.scrollY > 50) {
             elements.navbar?.classList.add('scrolled');
         }
@@ -673,19 +809,12 @@ const initializeWebsite = async () => {
             elements.scrollTopBtn?.classList.add('visible');
         }
         
-        // Initialize projects
         initializeProjects();
-        
-        // Initialize event listeners
         initializeEventListeners();
-        
-        // Initialize intersection observer
         initializeIntersectionObserver();
         
-        // Initialize blog (async)
         await loadInitialBlogPosts();
         
-        // Enhanced user experience features
         document.body.classList.add('website-loaded');
         
         console.log('✅ Portfolio website initialized successfully');
@@ -698,7 +827,7 @@ const initializeWebsite = async () => {
 // ============= STARTUP =============
 document.addEventListener('DOMContentLoaded', initializeWebsite);
 
-// Expose functions globally for debugging and HTML onclick handlers
+// Expose functions globally for debugging
 window.portfolioDebug = {
     blogState,
     projectsState,
@@ -706,5 +835,6 @@ window.portfolioDebug = {
     toggleProjects,
     scrollToTop,
     smoothScrollTo,
-    updateActiveNavLinks
+    updateActiveNavLinks,
+    seoManager
 };
