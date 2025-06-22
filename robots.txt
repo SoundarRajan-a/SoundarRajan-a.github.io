@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://soundarrajan.me/sitemap.xml
+
+# SEO directives
+Crawl-delay: 1
