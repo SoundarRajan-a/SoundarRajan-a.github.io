@@ -4,7 +4,7 @@ const BLOG_CONFIG = {
     githubRepo: 'blog-content',
     postsPerPage: 3,
     maxPosts: 12,
-    cacheTimeout: 300000 // 5 minutes
+    cacheTimeout: 300000
 };
 
 // ============= STATE MANAGEMENT =============
@@ -31,7 +31,19 @@ let navigationState = {
     current404Timeout: null
 };
 
-// ============= DOM ELEMENTS =============
+// ============= ROUTING CONFIGURATION =============
+const ROUTES = {
+    '/': 'home',
+    '/home': 'home',
+    '/about': 'about',
+    '/projects': 'projects',
+    '/blog': 'blog',
+    '/education': 'education',
+    '/skills': 'skills',
+    '/contact': 'contact'
+};
+
+// DOM elements
 const elements = {
     navbar: document.getElementById('navbar'),
     scrollTopBtn: document.getElementById('scrollTop'),
@@ -46,7 +58,7 @@ const elements = {
     loadMoreBtn: document.getElementById('loadMoreBtn'),
     loadMoreContainer: document.getElementById('loadMoreContainer'),
     mainContent: document.querySelector('body'),
-    page404: null // Will be created dynamically
+    page404: null
 };
 
 // ============= UTILITY FUNCTIONS =============
@@ -88,510 +100,432 @@ const sanitizeHTML = (str) => {
     return temp.innerHTML;
 };
 
-// ============= 404 PAGE CREATION =============
-const create404Page = () => {
-    const page404HTML = `
-        <div id="page-404" class="page-404 hidden" role="main" aria-labelledby="error-title">
-            <div class="error-container">
-                <div class="error-content">
-                    <div class="error-animation">
-                        <div class="error-number">404</div>
-                        <div class="error-glitch">404</div>
-                    </div>
-                    
-                    <h1 id="error-title" class="error-title">Page Not Found</h1>
-                    <p class="error-description">
-                        Oops! The page you're looking for seems to have wandered off into the digital void. 
-                        Don't worry, even the best developers get lost sometimes!
-                    </p>
-                    
-                    <div class="error-suggestions">
-                        <h3>Here's what you can do:</h3>
-                        <ul>
-                            <li><i class="fas fa-home"></i> Go back to the <a href="#home" class="error-link">homepage</a></li>
-                            <li><i class="fas fa-search"></i> Check if the URL is spelled correctly</li>
-                            <li><i class="fas fa-envelope"></i> <a href="#contact" class="error-link">Contact me</a> if you think this is a mistake</li>
-                            <li><i class="fas fa-project-diagram"></i> Browse my <a href="#projects" class="error-link">projects</a> instead</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="error-buttons">
-                        <button onclick="goHome()" class="btn btn-primary error-btn">
-                            <i class="fas fa-home"></i>
-                            Take Me Home
-                        </button>
-                        <button onclick="goBack()" class="btn btn-secondary error-btn">
-                            <i class="fas fa-arrow-left"></i>
-                            Go Back
-                        </button>
-                    </div>
-                    
-                    <div class="error-quote">
-                        <p><i class="fas fa-quote-left"></i> 
-                        "In the world of web development, 404 errors are just unexpected detours to discovery." 
-                        <i class="fas fa-quote-right"></i></p>
-                    </div>
-                </div>
-                
-                <div class="error-decoration">
-                    <div class="floating-code">
-                        <span>&lt;/html&gt;</span>
-                        <span>console.log('oops');</span>
-                        <span>404.css</span>
-                        <span>function notFound()</span>
-                        <span>&lt;div&gt;</span>
+// ============= ROUTING SYSTEM =============
+class Router {
+    constructor() {
+        this.currentRoute = '';
+        this.init();
+    }
+
+    init() {
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', (e) => {
+            this.handleRoute();
+        });
+
+        // Handle page load
+        window.addEventListener('load', () => {
+            this.handleRoute();
+        });
+
+        // Handle navigation clicks
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a[href^="#"], a[href^="/"]');
+            if (link && this.isInternalLink(link)) {
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                this.navigateTo(href);
+            }
+        });
+
+        // Initial route check
+        this.handleRoute();
+    }
+
+    isInternalLink(link) {
+        const href = link.getAttribute('href');
+        return href && (href.startsWith('#') || href.startsWith('/') || href.includes(window.location.hostname));
+    }
+
+    getCurrentPath() {
+        // Get path from URL, fallback to hash
+        let path = window.location.pathname;
+        
+        // If we're using hash routing
+        if (window.location.hash) {
+            path = window.location.hash.replace('#', '');
+        }
+        
+        // Normalize path
+        if (path === '' || path === '/') {
+            path = '/';
+        } else if (!path.startsWith('/')) {
+            path = '/' + path;
+        }
+        
+        return path.toLowerCase();
+    }
+
+    navigateTo(path) {
+        // Convert hash to clean URL
+        if (path.startsWith('#')) {
+            path = path.replace('#', '');
+        }
+        
+        // Normalize path
+        if (path === '' || path === '/') {
+            path = '/';
+        } else if (!path.startsWith('/')) {
+            path = '/' + path;
+        }
+        
+        // Update URL without reloading page
+        if (window.location.pathname !== path) {
+            window.history.pushState({}, '', path);
+        }
+        
+        this.handleRoute();
+    }
+
+    handleRoute() {
+        const path = this.getCurrentPath();
+        const section = ROUTES[path];
+        
+        clearTimeout(navigationState.current404Timeout);
+        
+        if (section) {
+            this.showSection(section);
+            this.currentRoute = path;
+            
+            // Update page title
+            this.updatePageTitle(section);
+            
+            // Hide 404 page if showing
+            this.hide404Page();
+            
+            // Close mobile menu if open
+            if (navigationState.isMobileMenuOpen) {
+                closeMobileMenu();
+            }
+            
+            console.log(`Navigated to: ${path} -> ${section}`);
+        } else {
+            this.show404Page();
+            console.log(`404: Invalid route ${path}`);
+        }
+    }
+
+    showSection(sectionId) {
+        // Show main content
+        const mainSections = document.querySelectorAll('section[id], .hero, .footer');
+        mainSections.forEach(section => {
+            section.style.display = 'block';
+        });
+        
+        // Scroll to specific section if not home
+        if (sectionId !== 'home') {
+            setTimeout(() => {
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    const offsetTop = targetSection.offsetTop - 80;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            }, 100);
+        } else {
+            // Scroll to top for home
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Update active nav links
+        this.updateActiveNavLinks(sectionId);
+    }
+
+    updateActiveNavLinks(sectionId) {
+        const targetHref = sectionId === 'home' ? '#home' : `#${sectionId}`;
+        
+        elements.navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            link.classList.toggle('active', href === targetHref);
+        });
+        
+        elements.mobileNavLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            link.classList.toggle('active', href === targetHref);
+        });
+    }
+
+    updatePageTitle(section) {
+        const titles = {
+            home: 'Soundarrajan A | Web Developer',
+            about: 'About - Soundarrajan A',
+            projects: 'Projects - Soundarrajan A',
+            blog: 'Blog - Soundarrajan A',
+            education: 'Education - Soundarrajan A',
+            skills: 'Skills - Soundarrajan A',
+            contact: 'Contact - Soundarrajan A'
+        };
+        
+        document.title = titles[section] || 'Soundarrajan A';
+    }
+
+    show404Page() {
+        if (!elements.page404) {
+            this.create404Page();
+        }
+        
+        // Hide main content
+        const mainSections = document.querySelectorAll('section[id], .hero, .footer');
+        mainSections.forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        elements.page404.style.display = 'flex';
+        document.title = '404 - Page Not Found | Soundarrajan A';
+        
+        // Add noindex meta tag
+        let noindexMeta = document.querySelector('meta[name="robots"][content*="noindex"]');
+        if (!noindexMeta) {
+            noindexMeta = document.createElement('meta');
+            noindexMeta.name = 'robots';
+            noindexMeta.content = 'noindex, nofollow';
+            document.head.appendChild(noindexMeta);
+        }
+        
+        if (navigationState.isMobileMenuOpen) {
+            closeMobileMenu();
+        }
+    }
+
+    hide404Page() {
+        if (elements.page404) {
+            elements.page404.style.display = 'none';
+        }
+        
+        // Show main content
+        const mainSections = document.querySelectorAll('section[id], .hero, .footer');
+        mainSections.forEach(section => {
+            section.style.display = 'block';
+        });
+        
+        // Remove noindex meta tag
+        const noindexMeta = document.querySelector('meta[name="robots"][content*="noindex"]');
+        if (noindexMeta) {
+            noindexMeta.remove();
+        }
+    }
+
+    create404Page() {
+        const page404HTML = `
+            <div id="page-404" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                background: var(--gradient-bg);
+                z-index: 9999;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                overflow: hidden;
+            ">
+                <div style="
+                    max-width: 800px;
+                    width: 100%;
+                    text-align: center;
+                    position: relative;
+                    z-index: 10;
+                ">
+                    <div style="
+                        background: var(--bg-card);
+                        border: 1px solid rgba(0, 245, 255, 0.2);
+                        border-radius: var(--radius-lg);
+                        padding: 3rem 2rem;
+                        backdrop-filter: blur(20px) saturate(180%);
+                        box-shadow: var(--shadow-glass);
+                        position: relative;
+                        overflow: hidden;
+                    ">
+                        <div style="
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            height: 3px;
+                            background: var(--gradient-primary);
+                        "></div>
+                        
+                        <div style="position: relative; margin-bottom: 2rem;">
+                            <div style="
+                                font-size: clamp(4rem, 15vw, 8rem);
+                                font-weight: 900;
+                                background: var(--gradient-primary);
+                                -webkit-background-clip: text;
+                                background-clip: text;
+                                -webkit-text-fill-color: transparent;
+                                line-height: 1;
+                                position: relative;
+                                z-index: 2;
+                            ">404</div>
+                        </div>
+                        
+                        <h1 style="
+                            font-size: clamp(1.8rem, 5vw, 2.5rem);
+                            font-weight: 700;
+                            color: var(--text-primary);
+                            margin-bottom: 1.5rem;
+                        ">Page Not Found</h1>
+                        
+                        <p style="
+                            font-size: clamp(1rem, 2.5vw, 1.2rem);
+                            color: var(--text-secondary);
+                            margin-bottom: 2rem;
+                            line-height: 1.7;
+                        ">
+                            Oops! The page you're looking for seems to have wandered off into the digital void. 
+                            Don't worry, even the best developers get lost sometimes!
+                        </p>
+                        
+                        <div style="
+                            text-align: left;
+                            background: var(--bg-glass);
+                            border: 1px solid rgba(0, 245, 255, 0.1);
+                            border-radius: var(--radius-md);
+                            padding: 1.5rem;
+                            margin: 2rem 0;
+                            backdrop-filter: blur(10px);
+                        ">
+                            <h3 style="
+                                color: var(--primary);
+                                font-size: 1.2rem;
+                                margin-bottom: 1rem;
+                                font-weight: 600;
+                            ">Here's what you can do:</h3>
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                <li style="
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 0.75rem;
+                                    margin-bottom: 0.75rem;
+                                    color: var(--text-secondary);
+                                    font-size: 1rem;
+                                    padding: 0.5rem;
+                                    border-radius: var(--radius-sm);
+                                ">
+                                    <i class="fas fa-home" style="color: var(--primary); width: 16px;"></i>
+                                    Go back to the <a href="/" onclick="goHome(); return false;" style="color: var(--primary); text-decoration: none; font-weight: 500;">homepage</a>
+                                </li>
+                                <li style="
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 0.75rem;
+                                    margin-bottom: 0.75rem;
+                                    color: var(--text-secondary);
+                                    font-size: 1rem;
+                                    padding: 0.5rem;
+                                    border-radius: var(--radius-sm);
+                                ">
+                                    <i class="fas fa-search" style="color: var(--primary); width: 16px;"></i>
+                                    Check if the URL is spelled correctly
+                                </li>
+                                <li style="
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 0.75rem;
+                                    margin-bottom: 0.75rem;
+                                    color: var(--text-secondary);
+                                    font-size: 1rem;
+                                    padding: 0.5rem;
+                                    border-radius: var(--radius-sm);
+                                ">
+                                    <i class="fas fa-envelope" style="color: var(--primary); width: 16px;"></i>
+                                    <a href="/contact" onclick="goToContact(); return false;" style="color: var(--primary); text-decoration: none; font-weight: 500;">Contact me</a> if you think this is a mistake
+                                </li>
+                                <li style="
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 0.75rem;
+                                    margin-bottom: 0.75rem;
+                                    color: var(--text-secondary);
+                                    font-size: 1rem;
+                                    padding: 0.5rem;
+                                    border-radius: var(--radius-sm);
+                                ">
+                                    <i class="fas fa-project-diagram" style="color: var(--primary); width: 16px;"></i>
+                                    Browse my <a href="/projects" onclick="goToProjects(); return false;" style="color: var(--primary); text-decoration: none; font-weight: 500;">projects</a> instead
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div style="
+                            display: flex;
+                            gap: 1rem;
+                            justify-content: center;
+                            flex-wrap: wrap;
+                            margin: 2rem 0;
+                        ">
+                            <button onclick="goHome()" style="
+                                min-width: 160px;
+                                padding: 1rem 1.5rem;
+                                font-size: 1rem;
+                                border-radius: var(--radius-md);
+                                position: relative;
+                                overflow: hidden;
+                                background: var(--gradient-primary);
+                                color: var(--text-primary);
+                                border: none;
+                                cursor: pointer;
+                                transition: var(--transition-smooth);
+                                box-shadow: var(--shadow-neon);
+                            ">
+                                <i class="fas fa-home"></i>
+                                Take Me Home
+                            </button>
+                            <button onclick="goBack()" style="
+                                min-width: 160px;
+                                padding: 1rem 1.5rem;
+                                font-size: 1rem;
+                                border-radius: var(--radius-md);
+                                position: relative;
+                                overflow: hidden;
+                                background: var(--bg-glass);
+                                color: var(--text-primary);
+                                border: 1px solid rgba(0, 245, 255, 0.3);
+                                cursor: pointer;
+                                transition: var(--transition-smooth);
+                                backdrop-filter: blur(10px);
+                            ">
+                                <i class="fas fa-arrow-left"></i>
+                                Go Back
+                            </button>
+                        </div>
+                        
+                        <div style="
+                            margin-top: 2rem;
+                            padding: 1.5rem;
+                            background: var(--bg-glass);
+                            border-left: 4px solid var(--primary);
+                            border-radius: var(--radius-sm);
+                            font-style: italic;
+                            color: var(--text-muted);
+                        ">
+                            <p><i class="fas fa-quote-left" style="color: var(--primary); opacity: 0.7;"></i> 
+                            "In the world of web development, 404 errors are just unexpected detours to discovery." 
+                            <i class="fas fa-quote-right" style="color: var(--primary); opacity: 0.7;"></i></p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    `;
-
-    // Add 404 CSS styles
-    const css404 = `
-        <style>
-        .page-404 {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: var(--gradient-bg);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            overflow: hidden;
-        }
-
-        .page-404.hidden {
-            display: none;
-        }
-
-        .error-container {
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-            z-index: 10;
-        }
-
-        .error-content {
-            background: var(--bg-card);
-            border: 1px solid rgba(0, 245, 255, 0.2);
-            border-radius: var(--radius-lg);
-            padding: 3rem 2rem;
-            backdrop-filter: blur(20px) saturate(180%);
-            box-shadow: var(--shadow-glass);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .error-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-primary);
-        }
-
-        .error-animation {
-            position: relative;
-            margin-bottom: 2rem;
-        }
-
-        .error-number {
-            font-size: clamp(4rem, 15vw, 8rem);
-            font-weight: 900;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1;
-            position: relative;
-            z-index: 2;
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        .error-glitch {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: clamp(4rem, 15vw, 8rem);
-            font-weight: 900;
-            color: var(--secondary);
-            opacity: 0.7;
-            z-index: 1;
-            animation: glitch 3s infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% {
-                filter: drop-shadow(0 0 10px rgba(0, 245, 255, 0.5));
-                transform: scale(1);
-            }
-            50% {
-                filter: drop-shadow(0 0 20px rgba(0, 245, 255, 0.8));
-                transform: scale(1.05);
-            }
-        }
-
-        @keyframes glitch {
-            0%, 90%, 100% {
-                transform: translateX(-50%) skew(0deg);
-                opacity: 0;
-            }
-            10% {
-                transform: translateX(-48%) skew(-2deg);
-                opacity: 0.7;
-            }
-            20% {
-                transform: translateX(-52%) skew(2deg);
-                opacity: 0.5;
-            }
-            30% {
-                transform: translateX(-50%) skew(0deg);
-                opacity: 0;
-            }
-        }
-
-        .error-title {
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 1.5rem;
-            animation: fade-in-up 0.8s ease-out 0.2s both;
-        }
-
-        .error-description {
-            font-size: clamp(1rem, 2.5vw, 1.2rem);
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-            line-height: 1.7;
-            animation: fade-in-up 0.8s ease-out 0.4s both;
-        }
-
-        .error-suggestions {
-            text-align: left;
-            background: var(--bg-glass);
-            border: 1px solid rgba(0, 245, 255, 0.1);
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            margin: 2rem 0;
-            backdrop-filter: blur(10px);
-            animation: fade-in-up 0.8s ease-out 0.6s both;
-        }
-
-        .error-suggestions h3 {
-            color: var(--primary);
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-
-        .error-suggestions ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .error-suggestions li {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-            color: var(--text-secondary);
-            font-size: 1rem;
-            transition: var(--transition-smooth);
-            padding: 0.5rem;
-            border-radius: var(--radius-sm);
-        }
-
-        .error-suggestions li:hover {
-            background: rgba(0, 245, 255, 0.05);
-            transform: translateX(5px);
-        }
-
-        .error-suggestions li i {
-            color: var(--primary);
-            width: 16px;
-            flex-shrink: 0;
-        }
-
-        .error-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition-smooth);
-            position: relative;
-        }
-
-        .error-link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--primary);
-            transition: var(--transition-smooth);
-        }
-
-        .error-link:hover {
-            color: var(--text-primary);
-        }
-
-        .error-link:hover::after {
-            width: 100%;
-        }
-
-        .error-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 2rem 0;
-            animation: fade-in-up 0.8s ease-out 0.8s both;
-        }
-
-        .error-btn {
-            min-width: 160px;
-            padding: 1rem 1.5rem;
-            font-size: 1rem;
-            border-radius: var(--radius-md);
-            transition: var(--transition-smooth);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .error-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: var(--transition-slow);
-        }
-
-        .error-btn:hover::before {
-            transform: translateX(200%);
-        }
-
-        .error-quote {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: var(--bg-glass);
-            border-left: 4px solid var(--primary);
-            border-radius: var(--radius-sm);
-            font-style: italic;
-            color: var(--text-muted);
-            animation: fade-in-up 0.8s ease-out 1s both;
-        }
-
-        .error-quote i {
-            color: var(--primary);
-            opacity: 0.7;
-        }
-
-        .error-decoration {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            overflow: hidden;
-        }
-
-        .floating-code {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-
-        .floating-code span {
-            position: absolute;
-            color: var(--primary);
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            opacity: 0.1;
-            animation: float-code 20s linear infinite;
-            white-space: nowrap;
-        }
-
-        .floating-code span:nth-child(1) {
-            top: 10%;
-            left: -10%;
-            animation-delay: 0s;
-            animation-duration: 25s;
-        }
-
-        .floating-code span:nth-child(2) {
-            top: 30%;
-            right: -15%;
-            animation-delay: 5s;
-            animation-duration: 30s;
-        }
-
-        .floating-code span:nth-child(3) {
-            bottom: 20%;
-            left: -20%;
-            animation-delay: 10s;
-            animation-duration: 35s;
-        }
-
-        .floating-code span:nth-child(4) {
-            top: 60%;
-            right: -10%;
-            animation-delay: 15s;
-            animation-duration: 28s;
-        }
-
-        .floating-code span:nth-child(5) {
-            bottom: 40%;
-            left: -5%;
-            animation-delay: 20s;
-            animation-duration: 32s;
-        }
-
-        @keyframes float-code {
-            0% {
-                transform: translateX(-50px) translateY(0) rotate(0deg);
-                opacity: 0;
-            }
-            10%, 90% {
-                opacity: 0.1;
-            }
-            50% {
-                transform: translateX(calc(100vw + 50px)) translateY(-20px) rotate(5deg);
-            }
-            100% {
-                transform: translateX(calc(100vw + 100px)) translateY(0) rotate(0deg);
-                opacity: 0;
-            }
-        }
-
-        @keyframes fade-in-up {
-            0% {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media (max-width: 768px) {
-            .page-404 {
-                padding: 1rem;
-            }
-            
-            .error-content {
-                padding: 2rem 1.5rem;
-            }
-            
-            .error-suggestions {
-                text-align: center;
-                padding: 1rem;
-            }
-            
-            .error-suggestions ul {
-                text-align: left;
-            }
-            
-            .error-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .error-btn {
-                width: 100%;
-                max-width: 280px;
-            }
-            
-            .floating-code span {
-                font-size: 0.6rem;
-            }
-        }
-        </style>
-    `;
-
-    // Add CSS to head
-    document.head.insertAdjacentHTML('beforeend', css404);
-    
-    // Add 404 page to body
-    document.body.insertAdjacentHTML('beforeend', page404HTML);
-    
-    elements.page404 = document.getElementById('page-404');
-};
-
-// ============= 404 PAGE FUNCTIONALITY =============
-const checkRoute = () => {
-    const hash = window.location.hash;
-    const validRoutes = ['#home', '#about', '#projects', '#blog', '#education', '#skills', '#contact', ''];
-    
-    clearTimeout(navigationState.current404Timeout);
-    
-    if (hash && !validRoutes.includes(hash)) {
-        show404Page();
-        return;
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', page404HTML);
+        elements.page404 = document.getElementById('page-404');
     }
-    
-    if (elements.page404 && !elements.page404.classList.contains('hidden')) {
-        hide404Page();
-    }
-};
+}
 
-const show404Page = () => {
-    if (!elements.page404) {
-        create404Page();
-    }
-    
-    elements.page404.classList.remove('hidden');
-    document.title = '404 - Page Not Found | Soundarrajan A';
-    
-    let noindexMeta = document.querySelector('meta[name="robots"][content*="noindex"]');
-    if (!noindexMeta) {
-        noindexMeta = document.createElement('meta');
-        noindexMeta.name = 'robots';
-        noindexMeta.content = 'noindex, nofollow';
-        document.head.appendChild(noindexMeta);
-    }
-    
-    if (navigationState.isMobileMenuOpen) {
-        closeMobileMenu();
-    }
-    
-    console.log('404 Page displayed for route:', window.location.hash);
-};
+// Initialize router
+let router;
 
-const hide404Page = () => {
-    if (elements.page404) {
-        elements.page404.classList.add('hidden');
-    }
-    
-    document.title = 'Soundarrajan A';
-    
-    const noindexMeta = document.querySelector('meta[name="robots"][content*="noindex"]');
-    if (noindexMeta) {
-        noindexMeta.remove();
-    }
-};
-
+// 404 page navigation functions
 const goHome = () => {
-    window.location.hash = '#home';
-    hide404Page();
-    scrollToTop();
+    router.navigateTo('/');
 };
 
 const goBack = () => {
@@ -599,15 +533,22 @@ const goBack = () => {
         window.history.back();
         
         navigationState.current404Timeout = setTimeout(() => {
-            const hash = window.location.hash;
-            const validRoutes = ['#home', '#about', '#projects', '#blog', '#education', '#skills', '#contact', ''];
-            if (hash && !validRoutes.includes(hash)) {
+            const path = router.getCurrentPath();
+            if (!ROUTES[path]) {
                 goHome();
             }
         }, 500);
     } else {
         goHome();
     }
+};
+
+const goToContact = () => {
+    router.navigateTo('/contact');
+};
+
+const goToProjects = () => {
+    router.navigateTo('/projects');
 };
 
 // ============= NAVBAR FUNCTIONALITY =============
@@ -654,10 +595,6 @@ const updateActiveNavLinks = () => {
 };
 
 const smoothScrollTo = (targetId) => {
-    if (elements.page404 && !elements.page404.classList.contains('hidden')) {
-        hide404Page();
-    }
-    
     const target = document.querySelector(targetId);
     if (!target) return;
     
@@ -993,22 +930,6 @@ const initializeEventListeners = () => {
     // Scroll events
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Navigation events
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const targetId = this.getAttribute('href');
-            
-            if (targetId === '#') return;
-            
-            smoothScrollTo(targetId);
-            
-            if (navigationState.isMobileMenuOpen) {
-                closeMobileMenu();
-            }
-        });
-    });
-    
     // Mobile menu events
     elements.mobileMenuBtn?.addEventListener('click', toggleMobileMenu);
     
@@ -1049,35 +970,6 @@ const initializeEventListeners = () => {
             closeMobileMenu();
         }
     });
-    
-    // Hash change events for 404
-    window.addEventListener('hashchange', checkRoute);
-    
-    // Handle direct URL access
-    window.addEventListener('load', () => {
-        setTimeout(checkRoute, 100);
-    });
-    
-    // Handle browser back/forward buttons
-    window.addEventListener('popstate', () => {
-        setTimeout(checkRoute, 50);
-    });
-    
-    // Handle 404 page links
-    document.addEventListener('click', (e) => {
-        if (e.target.matches('.error-link, .error-link *')) {
-            const link = e.target.closest('.error-link');
-            if (link) {
-                const href = link.getAttribute('href');
-                if (href && href.startsWith('#')) {
-                    e.preventDefault();
-                    window.location.hash = href;
-                    hide404Page();
-                    smoothScrollTo(href);
-                }
-            }
-        }
-    });
 };
 
 // ============= INTERSECTION OBSERVER =============
@@ -1105,6 +997,9 @@ const initializeIntersectionObserver = () => {
 // ============= INITIALIZATION =============
 const initializeWebsite = async () => {
     try {
+        // Initialize router first
+        router = new Router();
+        
         // Initialize navbar state
         updateActiveNavLinks();
         
@@ -1128,10 +1023,7 @@ const initializeWebsite = async () => {
         // Initialize blog (async)
         await loadInitialBlogPosts();
         
-        // Check route for 404
-        checkRoute();
-        
-        console.log('✅ Portfolio website initialized successfully');
+        console.log('✅ Portfolio website initialized successfully with routing');
         
     } catch (error) {
         console.error('❌ Error initializing website:', error);
@@ -1146,8 +1038,12 @@ window.scrollToTop = scrollToTop;
 window.loadInitialBlogPosts = loadInitialBlogPosts;
 window.goHome = goHome;
 window.goBack = goBack;
+window.goToContact = goToContact;
+window.goToProjects = goToProjects;
+
+// Test function
 window.test404 = () => {
-    window.location.hash = '#nonexistent-page';
+    router.navigateTo('/nonexistent-page');
 };
 
 // Debug object
@@ -1155,14 +1051,11 @@ window.portfolioDebug = {
     blogState,
     projectsState,
     navigationState,
+    router,
+    ROUTES,
     loadInitialBlogPosts,
     toggleProjects,
-    scrollToTop,
-    show404Page,
-    hide404Page,
-    checkRoute,
-    goHome,
-    goBack
+    scrollToTop
 };
 
 console.log('💡 Type window.test404() in console to test 404 page');
