@@ -1,0 +1,21 @@
+{
+    "name": "Soundarrajan A - Web Developer",
+    "short_name": "Soundarrajan A",
+    "description": "Portfolio of Soundarrajan A, Web Developer and Computer Science student",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0a0a0f",
+    "theme_color": "#00f5ff",
+    "icons": [
+        {
+            "src": "/src/aakash.jpg",
+            "sizes": "192x192",
+            "type": "image/jpeg"
+        },
+        {
+            "src": "/src/aakash.jpg",
+            "sizes": "512x512",
+            "type": "image/jpeg"
+        }
+    ]
+}
