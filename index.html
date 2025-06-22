@@ -1,25 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- SEO Meta Tags -->
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Soundarrajan A - Web Developer Portfolio with Dynamic Blog. Modern, responsive design showcasing web development skills and projects.">
     <meta name="keywords" content="Soundarrajan A,soundarrajan,soundarrajan sr,aakash sr, web developer, portfolio, blog, computer science,esasc,es arts and science college, JavaScript">
     <meta name="author" content="Soundarrajan A">
-    <meta property="og:title" content="Soundarrajan A | Web Developer">
-    <meta property="og:description" content="Portfolio of Soundarrajan A, Web developer and Computer Science student">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="English">
+    <meta name="revisit-after" content="7 days">
+    
+    <!-- Enhanced Open Graph -->
+    <meta property="og:title" content="Soundarrajan A | Web Developer Portfolio">
+    <meta property="og:description" content="Portfolio of Soundarrajan A, Web developer and Computer Science student specializing in modern web technologies">
     <meta property="og:url" content="https://soundarrajan.me">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://soundarrajan.me/src/aakash.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Soundarrajan A Portfolio">
     
-    <title>Soundarrajan A</title>
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Soundarrajan A | Web Developer">
+    <meta name="twitter:description" content="Portfolio showcasing modern web development projects and skills">
+    <meta name="twitter:image" content="https://soundarrajan.me/src/aakash.jpg">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://soundarrajan.me">
+    
+    <title>Soundarrajan A | Web Developer Portfolio</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/src/your-photo.jpg">
-    <link rel="icon" type="image/png" sizes="32x32" href="/src/your-photo.jpg">
-    <link rel="icon" type="image/png" sizes="16x16" href="/src/your-photo.jpg">
-    <link rel="apple-touch-icon" sizes="180x180" href="/src/your-photo.jpg">
+    <link rel="icon" type="image/x-icon" href="/src/aakash.jpg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/src/aakash.jpg">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#00f5ff">
     
@@ -33,6 +48,74 @@
     
     <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Soundarrajan A",
+        "alternateName": ["Soundarrajan", "Aakash SR"],
+        "description": "Web Developer and Computer Science student specializing in modern web technologies and UI/UX design",
+        "url": "https://soundarrajan.me",
+        "image": "https://soundarrajan.me/src/aakash.jpg",
+        "sameAs": [
+            "https://www.linkedin.com/in/soundar-rajan-b589822b5",
+            "https://github.com/SoundarRajan-a",
+            "https://www.instagram.com/aakash_sr_25/"
+        ],
+        "jobTitle": "Web Developer",
+        "worksFor": {
+            "@type": "EducationalOrganization",
+            "name": "ES Arts and Science College",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Villupuram",
+                "addressRegion": "Tamil Nadu",
+                "addressCountry": "India"
+            }
+        },
+        "alumniOf": {
+            "@type": "EducationalOrganization",
+            "name": "Gandhi Memorial HR Sec School"
+        },
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Villupuram",
+            "addressRegion": "Tamil Nadu",
+            "addressCountry": "India"
+        },
+        "email": "soundarrajan2725@gmail.com",
+        "knowsAbout": [
+            "Web Development",
+            "JavaScript",
+            "HTML",
+            "CSS",
+            "UI/UX Design",
+            "Computer Science"
+        ]
+    }
+    </script>
+    
+    <!-- Website Schema -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Soundarrajan A Portfolio",
+        "url": "https://soundarrajan.me",
+        "description": "Professional portfolio website showcasing web development projects and skills",
+        "author": {
+            "@type": "Person",
+            "name": "Soundarrajan A"
+        },
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://soundarrajan.me/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
 </head>
 <body>
     <!-- Background Container -->
@@ -81,7 +164,11 @@
     <section id="home" class="hero">
         <div class="hero-content">
             <img src="src/aakash.jpg" 
-                 alt="Soundarrajan A - Web Developer" class="hero-avatar">
+                 alt="Soundarrajan A - Web Developer" 
+                 class="hero-avatar"
+                 width="160"
+                 height="160"
+                 loading="eager">
             
             <h1 class="hero-title">SOUNDARRAJAN</h1>
             <p class="hero-subtitle">Web Developer</p>
@@ -271,11 +358,9 @@
 
             <div class="skills-container fade-in">
                 <div class="skills-grid">
-                    <!-- Frontend Skills -->
                     <div class="skill-item">HTML</div>
                     <div class="skill-item">CSS</div>
                     <div class="skill-item">JavaScript</div>
-                    <!-- Tools & Others -->
                     <div class="skill-item">GitHub</div>
                     <div class="skill-item">UI/UX Design</div>
                 </div>
