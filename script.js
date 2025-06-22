@@ -1,7 +1,4 @@
-// Keep your existing JavaScript code exactly as it is
-// I'm only adding performance and accessibility enhancements
-
-// ============= EXISTING CONFIGURATION (Keep as is) =============
+// ============= CONFIGURATION =============
 const BLOG_CONFIG = {
     githubUsername: 'SoundarRajan-a',
     githubRepo: 'blog-content',
@@ -10,7 +7,7 @@ const BLOG_CONFIG = {
     cacheTimeout: 300000 // 5 minutes
 };
 
-// ============= EXISTING STATE MANAGEMENT (Keep as is) =============
+// ============= STATE MANAGEMENT =============
 let blogState = {
     currentPage: 1,
     allPosts: [],
@@ -27,7 +24,7 @@ let projectsState = {
     initialShow: 2
 };
 
-// ============= EXISTING DOM ELEMENTS (Keep as is) =============
+// ============= DOM ELEMENTS =============
 const elements = {
     navbar: document.getElementById('navbar'),
     scrollTopBtn: document.getElementById('scrollTop'),
@@ -43,14 +40,13 @@ const elements = {
     loadMoreContainer: document.getElementById('loadMoreContainer')
 };
 
-// EXISTING State management (Keep as is)
+// State management
 let isMobileMenuOpen = false;
 let isScrolling = false;
 let lastScrollY = 0;
-let resizeTimeout;
+let scrollDirection = 'up';
 
-// ============= KEEP ALL YOUR EXISTING FUNCTIONS =============
-// (Your existing throttle, debounce, sanitizeHTML functions)
+// ============= UTILITY FUNCTIONS =============
 const throttle = (func, wait) => {
     let timeout;
     let lastExecTime = 0;
@@ -89,36 +85,62 @@ const sanitizeHTML = (str) => {
     return temp.innerHTML;
 };
 
-// Enhanced scroll handling with SEO improvements
+// ============= ENHANCED NAVBAR FUNCTIONALITY =============
 const handleScroll = throttle(() => {
     if (isScrolling) return;
     
     requestAnimationFrame(() => {
         const scrollY = window.scrollY;
+        const currentScrollDirection = scrollY > lastScrollY ? 'down' : 'up';
         
-        // Navbar scroll effect
-        elements.navbar?.classList.toggle('scrolled', scrollY > 50);
+        // Enhanced navbar visibility logic
+        if (scrollY > 50) {
+            elements.navbar?.classList.add('scrolled');
+        } else {
+            elements.navbar?.classList.remove('scrolled');
+        }
+        
+        // Show navbar when scrolling up or at top, hide when scrolling down
+        if (scrollY <= 100) {
+            // Always show at top
+            elements.navbar?.classList.remove('hidden');
+        } else if (currentScrollDirection === 'up' && scrollDirection === 'down') {
+            // Show when starting to scroll up
+            elements.navbar?.classList.remove('hidden');
+        } else if (currentScrollDirection === 'down' && scrollY > lastScrollY + 10) {
+            // Hide when scrolling down significantly
+            elements.navbar?.classList.add('hidden');
+        }
         
         // Scroll to top button
         elements.scrollTopBtn?.classList.toggle('visible', scrollY > 100);
         
+        // Update active nav links
         updateActiveNavLinks();
+        
+        scrollDirection = currentScrollDirection;
         lastScrollY = scrollY;
     });
 }, 16);
 
-// Enhanced active nav links with SEO title updates
 const updateActiveNavLinks = () => {
     const sections = document.querySelectorAll('section[id]');
     let current = '';
     const scrollPosition = window.scrollY;
+    const viewportHeight = window.innerHeight;
     
     sections.forEach(section => {
         const rect = section.getBoundingClientRect();
         const offsetTop = scrollPosition + rect.top - 100;
         const offsetBottom = offsetTop + section.offsetHeight;
         
+        // Check if section is in viewport
         if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
+            current = section.getAttribute('id');
+        }
+        
+        // Alternative: check if section center is in viewport
+        if (!current && rect.top <= viewportHeight / 2 && rect.bottom >= viewportHeight / 2) {
             current = section.getAttribute('id');
         }
     });
@@ -126,64 +148,50 @@ const updateActiveNavLinks = () => {
     if (current) {
         const targetHref = `#${current}`;
         
-        // Update navigation
+        // Update desktop nav links with enhanced active state
         elements.navLinks.forEach(link => {
             const isActive = link.getAttribute('href') === targetHref;
             link.classList.toggle('active', isActive);
+            
+            // Enhanced visual feedback
             if (isActive) {
-                link.setAttribute('aria-current', 'page');
+                link.style.setProperty('--glow-intensity', '1');
             } else {
-                link.removeAttribute('aria-current');
+                link.style.setProperty('--glow-intensity', '0');
             }
         });
         
+        // Update mobile nav links
         elements.mobileNavLinks.forEach(link => {
-            const isActive = link.getAttribute('href') === targetHref;
-            link.classList.toggle('active', isActive);
-            if (isActive) {
-                link.setAttribute('aria-current', 'page');
-            } else {
-                link.removeAttribute('aria-current');
-            }
+            link.classList.toggle('active', link.getAttribute('href') === targetHref);
         });
         
-        // SEO: Update page title dynamically
-        updatePageTitle(current);
+        // Update page title based on current section
+        const sectionTitles = {
+            home: 'Soundarrajan A | Web Developer',
+            about: 'About - Soundarrajan A',
+            projects: 'Projects - Soundarrajan A',
+            blog: 'Blog - Soundarrajan A',
+            education: 'Education - Soundarrajan A',
+            skills: 'Skills - Soundarrajan A',
+            contact: 'Contact - Soundarrajan A'
+        };
+        
+        if (sectionTitles[current]) {
+            document.title = sectionTitles[current];
+        }
     }
 };
 
-// NEW: SEO title updates
-const updatePageTitle = (section) => {
-    const titles = {
-        'home': 'Soundarrajan A | Web Developer & Computer Science Student',
-        'about': 'About - Soundarrajan A | Creative Developer',
-        'projects': 'Projects - Soundarrajan A | Featured Work',
-        'blog': 'Blog - Soundarrajan A | Latest Articles',
-        'education': 'Education - Soundarrajan A | Academic Journey',
-        'skills': 'Skills - Soundarrajan A | Technical Expertise',
-        'contact': 'Contact - Soundarrajan A | Let\'s Connect'
-    };
-    
-    const newTitle = titles[section] || titles['home'];
-    if (document.title !== newTitle) {
-        document.title = newTitle;
-    }
-};
-
-// KEEP ALL YOUR EXISTING FUNCTIONS EXACTLY AS THEY ARE:
-// - smoothScrollTo
-// - openMobileMenu, closeMobileMenu, toggleMobileMenu
-// - scrollToTop
-// - initializeProjects, toggleProjects
-// - ALL BLOG FUNCTIONS (fetchBlogPosts, loadInitialBlogPosts, etc.)
-// - All your existing event listeners and initialization
-
-// Your existing smoothScrollTo function
 const smoothScrollTo = (targetId) => {
     const target = document.querySelector(targetId);
     if (!target) return;
     
     isScrolling = true;
+    
+    // Show navbar when navigating
+    elements.navbar?.classList.remove('hidden');
+    
     const offsetTop = target.offsetTop - 80;
     
     window.scrollTo({
@@ -196,7 +204,7 @@ const smoothScrollTo = (targetId) => {
     }, 1000);
 };
 
-// Your existing mobile menu functions
+// Mobile menu functions
 const openMobileMenu = () => {
     isMobileMenuOpen = true;
     elements.mobileNavOverlay?.classList.add('active');
@@ -223,23 +231,30 @@ const toggleMobileMenu = () => {
 
 const scrollToTop = () => {
     isScrolling = true;
+    
+    // Show navbar when going to top
+    elements.navbar?.classList.remove('hidden');
+    
     window.scrollTo({
         top: 0,
         behavior: 'smooth'
     });
+    
     setTimeout(() => {
         isScrolling = false;
     }, 1000);
 };
 
-// Your existing projects functions
+// ============= PROJECTS FUNCTIONALITY =============
 const initializeProjects = () => {
     const allProjectItems = document.querySelectorAll('.project-item');
     
+    // Show only initial projects
     allProjectItems.forEach((item, index) => {
         item.classList.toggle('hidden', index >= projectsState.initialShow);
     });
     
+    // Show/hide "See More" button
     if (elements.seeMoreContainer) {
         elements.seeMoreContainer.style.display = 
             allProjectItems.length > projectsState.initialShow ? 'block' : 'none';
@@ -251,6 +266,7 @@ const toggleProjects = () => {
     const allProjects = document.querySelectorAll('.project-item');
     
     if (!projectsState.showingAll) {
+        // Show more projects
         hiddenProjects.forEach((project, index) => {
             setTimeout(() => {
                 project.classList.remove('hidden');
@@ -263,6 +279,7 @@ const toggleProjects = () => {
         }
         projectsState.showingAll = true;
     } else {
+        // Hide extra projects
         allProjects.forEach((project, index) => {
             if (index >= projectsState.initialShow) {
                 project.classList.add('hidden');
@@ -275,15 +292,17 @@ const toggleProjects = () => {
         }
         projectsState.showingAll = false;
         
+        // Scroll to projects section
         smoothScrollTo('#projects');
     }
 };
 
-// KEEP ALL YOUR EXISTING BLOG FUNCTIONS EXACTLY AS THEY ARE
+// ============= BLOG FUNCTIONALITY (Without Reading Time) =============
 const fetchBlogPosts = async (page = 1) => {
     const cacheKey = `blog-page-${page}`;
     const now = Date.now();
     
+    // Check cache
     if (blogState.cache.has(cacheKey) && 
         (now - blogState.lastFetch) < BLOG_CONFIG.cacheTimeout) {
         return blogState.cache.get(cacheKey);
@@ -314,6 +333,7 @@ const fetchBlogPosts = async (page = 1) => {
         
         const issues = await response.json();
         
+        // Cache the result
         blogState.cache.set(cacheKey, issues);
         blogState.lastFetch = now;
         
@@ -354,6 +374,7 @@ const loadInitialBlogPosts = async () => {
         blogState.displayedPosts = issues;
         blogState.currentPage = 1;
         
+        // Check if there are more posts
         blogState.hasMorePosts = issues.length === BLOG_CONFIG.postsPerPage;
         
         if (elements.loadMoreContainer) {
@@ -371,7 +392,7 @@ const loadInitialBlogPosts = async () => {
                 <h3>Unable to load blog posts</h3>
                 <p>Error: ${error.message}</p>
                 <button onclick="loadInitialBlogPosts()" class="btn btn-secondary" style="margin-top: 1rem;">
-                    <i class="fas fa-retry"></i> Try Again
+                    <i class="fas fa-redo"></i> Try Again
                 </button>
             </div>
         `;
@@ -392,6 +413,7 @@ const loadMoreBlogPosts = async () => {
             
             renderBlogPosts(newPosts, false);
             
+            // Check if there are more posts
             blogState.hasMorePosts = newPosts.length === BLOG_CONFIG.postsPerPage;
             
             if (!blogState.hasMorePosts && elements.loadMoreContainer) {
@@ -406,6 +428,7 @@ const loadMoreBlogPosts = async () => {
     } catch (error) {
         console.error('Error loading more blog posts:', error);
         
+        // Show error message
         const errorMsg = document.createElement('div');
         errorMsg.className = 'blog-error';
         errorMsg.innerHTML = `
@@ -443,6 +466,7 @@ const renderBlogPosts = (posts, isInitial = false) => {
         }
     }
     
+    // Trigger fade-in animations for new cards
     setTimeout(() => {
         const newCards = document.querySelectorAll('.blog-card:not(.visible)');
         newCards.forEach((card, index) => {
@@ -511,10 +535,12 @@ const updateLoadMoreButton = (isLoading) => {
     elements.loadMoreBtn.disabled = isLoading;
 };
 
-// Enhanced event listeners with accessibility improvements
+// ============= EVENT LISTENERS =============
 const initializeEventListeners = () => {
+    // Enhanced scroll events
     window.addEventListener('scroll', handleScroll, { passive: true });
     
+    // Navigation events
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -530,6 +556,7 @@ const initializeEventListeners = () => {
         });
     });
     
+    // Mobile menu events
     elements.mobileMenuBtn?.addEventListener('click', toggleMobileMenu);
     
     elements.mobileNavOverlay?.addEventListener('click', (e) => {
@@ -538,32 +565,71 @@ const initializeEventListeners = () => {
         }
     });
     
+    // Enhanced keyboard events
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (isMobileMenuOpen) {
                 closeMobileMenu();
             }
         }
+        
+        // Navigation shortcuts
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key) {
+                case 'h':
+                    e.preventDefault();
+                    smoothScrollTo('#home');
+                    break;
+                case 'p':
+                    e.preventDefault();
+                    smoothScrollTo('#projects');
+                    break;
+                case 'b':
+                    e.preventDefault();
+                    smoothScrollTo('#blog');
+                    break;
+            }
+        }
     });
     
+    // Projects events
     elements.seeMoreBtn?.addEventListener('click', toggleProjects);
+    
+    // Blog events
     elements.loadMoreBtn?.addEventListener('click', loadMoreBlogPosts);
+    
+    // Scroll to top event
     elements.scrollTopBtn?.addEventListener('click', scrollToTop);
     
+    // Enhanced resize handler
     window.addEventListener('resize', debounce(() => {
         if (window.innerWidth > 768 && isMobileMenuOpen) {
             closeMobileMenu();
         }
+        
+        // Reset navbar state on resize
+        if (elements.navbar) {
+            elements.navbar.classList.remove('hidden');
+        }
     }, 250));
     
+    // Page visibility change handler
     document.addEventListener('visibilitychange', () => {
         if (document.hidden && isMobileMenuOpen) {
             closeMobileMenu();
         }
     });
+    
+    // Enhanced focus management
+    document.addEventListener('focusin', (e) => {
+        // Show navbar when navigating with keyboard
+        if (e.target.matches('.nav-link')) {
+            elements.navbar?.classList.remove('hidden');
+        }
+    });
 };
 
-// Enhanced intersection observer
+// ============= INTERSECTION OBSERVER =============
 const initializeIntersectionObserver = () => {
     const observerOptions = {
         threshold: 0.1,
@@ -574,10 +640,15 @@ const initializeIntersectionObserver = () => {
         entries.forEach(entry => {
             if (entry.isIntersecting && !entry.target.classList.contains('visible')) {
                 entry.target.classList.add('visible');
+                
+                // Enhanced animation delays for better visual flow
+                const animationDelay = Array.from(entry.target.parentNode.children).indexOf(entry.target) * 100;
+                entry.target.style.transitionDelay = `${animationDelay}ms`;
             }
         });
     }, observerOptions);
     
+    // Observe fade-in elements
     document.querySelectorAll('.fade-in').forEach(el => {
         observer.observe(el);
     });
@@ -585,14 +656,15 @@ const initializeIntersectionObserver = () => {
     return observer;
 };
 
-// Enhanced initialization with performance monitoring
+// ============= INITIALIZATION =============
 const initializeWebsite = async () => {
     try {
-        // Mark start time for performance
-        const startTime = performance.now();
+        console.log('🚀 Initializing Soundarrajan Portfolio...');
         
+        // Initialize navbar state
         updateActiveNavLinks();
         
+        // Set initial states based on scroll position
         if (window.scrollY > 50) {
             elements.navbar?.classList.add('scrolled');
         }
@@ -601,30 +673,38 @@ const initializeWebsite = async () => {
             elements.scrollTopBtn?.classList.add('visible');
         }
         
+        // Initialize projects
         initializeProjects();
+        
+        // Initialize event listeners
         initializeEventListeners();
+        
+        // Initialize intersection observer
         initializeIntersectionObserver();
         
-        // Initialize blog asynchronously
+        // Initialize blog (async)
         await loadInitialBlogPosts();
         
-        // Log performance
-        const endTime = performance.now();
-        console.log(`✅ Portfolio initialized in ${Math.round(endTime - startTime)}ms`);
+        // Enhanced user experience features
+        document.body.classList.add('website-loaded');
+        
+        console.log('✅ Portfolio website initialized successfully');
         
     } catch (error) {
         console.error('❌ Error initializing website:', error);
     }
 };
 
-// Initialize when DOM is ready
+// ============= STARTUP =============
 document.addEventListener('DOMContentLoaded', initializeWebsite);
 
-// Expose functions globally for debugging
+// Expose functions globally for debugging and HTML onclick handlers
 window.portfolioDebug = {
     blogState,
     projectsState,
     loadInitialBlogPosts,
     toggleProjects,
-    scrollToTop
+    scrollToTop,
+    smoothScrollTo,
+    updateActiveNavLinks
 };
