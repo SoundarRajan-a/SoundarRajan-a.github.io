@@ -690,6 +690,12 @@ body {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.project-status {
+    margin-left: auto;
+    margin-right: 0.5rem;
 }
 
 .project-icon {
@@ -771,6 +777,38 @@ body {
 .tech-tag:hover {
     background: rgba(0, 245, 255, 0.2);
     color: var(--primary);
+    transform: scale(1.05) translateZ(0);
+}
+
+/* this for status */
+.tech-tags {
+    background: var(--bg-glass);
+    color: var(--success);
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border: 1px solid rgba(0, 245, 255, 0.1);
+    backdrop-filter: blur(5px);
+    transition: var(--transition-smooth);
+    will-change: transform;
+    transform: translateZ(0);
+}
+.tech-tags:hover {
+    background: rgba(0, 255, 149, 0.2);
+    color: var(--success);
+    transform: scale(1.05) translateZ(0);
+}
+
+/* Upcoming project status */
+.tech-tags.upcoming {
+    background: rgba(255, 165, 0, 0.1);
+    color: #ffa500;
+    border: 1px solid rgba(255, 165, 0, 0.3);
+}
+.tech-tags.upcoming:hover {
+    background: rgba(255, 165, 0, 0.2);
+    color: #ff8c00;
     transform: scale(1.05) translateZ(0);
 }
 
