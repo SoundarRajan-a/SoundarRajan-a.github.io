@@ -29,7 +29,7 @@ let blogState = {
 
 let projectsState = {
     showingAll: false,
-    totalProjects: 6,
+    totalProjects: 4,
     initialShow: 2
 };
 
@@ -515,13 +515,8 @@ const loadInitialBlogPosts = async () => {
         const issues = await fetchBlogPosts(1);
         
         if (issues.length === 0) {
-            elements.blogContainer.innerHTML = `
-                <div class="blog-empty">
-                    <i class="fas fa-pen-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                    <h3>No blog posts yet</h3>
-                    <p>Create an issue with the label "blog" in your GitHub repository to add blog posts!</p>
-                </div>
-            `;
+            // Load sample blog content if no GitHub issues found
+            loadSampleBlogPosts();
             return;
         }
         
@@ -540,17 +535,46 @@ const loadInitialBlogPosts = async () => {
         
     } catch (error) {
         console.error('Error loading initial blog posts:', error);
-        elements.blogContainer.innerHTML = `
-            <div class="blog-empty">
-                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; color: var(--secondary);"></i>
-                <h3>Unable to load blog posts</h3>
-                <p>Error: ${error.message}</p>
-                <button onclick="loadInitialBlogPosts()" class="btn btn-secondary" style="margin-top: 1rem;">
-                    <i class="fas fa-redo"></i> Try Again
-                </button>
-            </div>
-        `;
+        // Load sample blog content if GitHub fetch fails
+        loadSampleBlogPosts();
     }
+};
+
+const loadSampleBlogPosts = () => {
+    const samplePosts = [
+        {
+            title: "Getting Started with Web Development",
+            body: "Welcome to my blog! Here I'll share my journey learning web development, from HTML and CSS basics to advanced JavaScript frameworks...",
+            created_at: "2024-01-15T10:00:00Z",
+            labels: [{ name: "web-development", color: "0066cc" }],
+            number: 1
+        },
+        {
+            title: "Building Responsive Layouts with CSS Grid",
+            body: "CSS Grid has revolutionized how we create layouts on the web. In this post, I'll share some techniques I've learned for building responsive, flexible layouts...",
+            created_at: "2024-01-10T14:30:00Z",
+            labels: [{ name: "css", color: "ff6b35" }],
+            number: 2
+        },
+        {
+            title: "JavaScript ES6+ Features That Changed Everything",
+            body: "Modern JavaScript has so many powerful features. Let me walk through some ES6+ features that have made my code cleaner and more efficient...",
+            created_at: "2024-01-05T09:15:00Z",
+            labels: [{ name: "javascript", color: "f7df1e" }],
+            number: 3
+        }
+    ];
+    
+    blogState.allPosts = samplePosts;
+    blogState.displayedPosts = samplePosts;
+    blogState.currentPage = 1;
+    blogState.hasMorePosts = false;
+    
+    if (elements.loadMoreContainer) {
+        elements.loadMoreContainer.style.display = 'none';
+    }
+    
+    renderBlogPosts(samplePosts, true);
 };
 
 const loadMoreBlogPosts = async () => {
